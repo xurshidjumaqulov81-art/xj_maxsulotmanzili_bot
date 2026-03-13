@@ -29,7 +29,6 @@ dp = Dispatcher(storage=MemoryStorage())
 
 class OrderForm(StatesGroup):
     waiting_continue = State()
-    waiting_start_form = State()
     waiting_order_id = State()
     waiting_fullname = State()
     waiting_country = State()
@@ -40,20 +39,50 @@ class OrderForm(StatesGroup):
 
 COUNTRIES = {
     "🇺🇿 Ўзбекистон": [
-        "Тошкент", "Самарқанд", "Бухоро", "Андижон",
-        "Наманган", "Фарғона", "Нукус"
+        "Тошкент шаҳри",
+        "Тошкент вилояти",
+        "Андижон вилояти",
+        "Бухоро вилояти",
+        "Жиззах вилояти",
+        "Қашқадарё вилояти",
+        "Навоий вилояти",
+        "Наманган вилояти",
+        "Самарқанд вилояти",
+        "Сирдарё вилояти",
+        "Сурхондарё вилояти",
+        "Фарғона вилояти",
+        "Хоразм вилояти",
+        "Қорақалпоғистон Республикаси"
     ],
     "🇰🇿 Қозоғистон": [
-        "Астана", "Олмаота", "Чимкент", "Қарағанда", "Туркистон"
+        "Астана",
+        "Олмаота",
+        "Чимкент",
+        "Қарағанда",
+        "Туркистон",
+        "Атирау",
+        "Ақтөбе"
     ],
     "🇰🇬 Қирғизистон": [
-        "Бишкек", "Ўш", "Жалолобод"
+        "Бишкек",
+        "Ўш",
+        "Жалолобод",
+        "Норин",
+        "Қоракўл"
     ],
     "🇹🇯 Тожикистон": [
-        "Душанбе", "Хўжанд", "Бохтар"
+        "Душанбе",
+        "Хўжанд",
+        "Бохтар",
+        "Кўлоб",
+        "Истаравшан"
     ],
     "🇹🇲 Туркманистон": [
-        "Ашхобод", "Туркманобод", "Дашоғуз"
+        "Ашхобод",
+        "Туркманобод",
+        "Дашоғуз",
+        "Марий",
+        "Балканобод"
     ]
 }
 
@@ -64,15 +93,6 @@ def continue_keyboard():
     return ReplyKeyboardMarkup(
         keyboard=[
             [KeyboardButton(text="▶️ Давом этиш")]
-        ],
-        resize_keyboard=True
-    )
-
-
-def start_form_keyboard():
-    return ReplyKeyboardMarkup(
-        keyboard=[
-            [KeyboardButton(text="📝 Буюртма маълумотларини киритиш")]
         ],
         resize_keyboard=True
     )
@@ -179,45 +199,15 @@ def build_admin_text(data: dict, user: Message) -> str:
 @dp.message(CommandStart())
 async def start_handler(message: Message, state: FSMContext):
     await state.clear()
-    text = (
-        "👋 <b>Ассалому алайкум!</b>\n\n"
-        "📦 Ушбу бот орқали сиз буюртма қилинган маҳсулот учун\n"
-        "🚚 етказиб бериш маълумотларини юборишингиз мумкин.\n\n"
-        "Сиздан қуйидаги маълумотлар сўралади:\n\n"
-        "🆔 Буюртма ID рақами\n"
-        "👤 Буюртма эгасининг исм-фамилияси\n"
-        "🌍 Етказиб бериш давлати\n"
-        "🏙 Шаҳар\n"
-        "📍 Аниқ манзил\n\n"
-        "⚠️ Илтимос, барча маълумотларни тўғри киритинг.\n\n"
-        "Давом этиш учун қуйидаги тугмани босинг."
+    await message.answer(
+        "▶️ <b>Давом этиш</b> тугмасини босинг.",
+        reply_markup=continue_keyboard()
     )
-    await message.answer(text, reply_markup=continue_keyboard())
     await state.set_state(OrderForm.waiting_continue)
 
 
 @dp.message(OrderForm.waiting_continue, F.text == "▶️ Давом этиш")
 async def continue_handler(message: Message, state: FSMContext):
-    text = (
-        "📌 <b>Маълумотларни киритишдан олдин қуйидагиларга эътибор беринг:</b>\n\n"
-        "1️⃣ Буюртма ID <b>7 хонали</b> бўлиши керак\n"
-        "2️⃣ Исм-фамилия <b>тўлиқ ёзилиши керак</b>\n"
-        "3️⃣ Давлат ва шаҳар <b>тугмалар орқали танланади</b>\n"
-        "4️⃣ Кейин <b>аниқ манзил</b> киритилади\n"
-        "5️⃣ Барча маълумотлар <b>тасдиқлангандан кейин админга юборилади</b>\n\n"
-        "Тайёр бўлсангиз, қуйидаги тугмани босинг."
-    )
-    await message.answer(text, reply_markup=start_form_keyboard())
-    await state.set_state(OrderForm.waiting_start_form)
-
-
-@dp.message(OrderForm.waiting_continue)
-async def wrong_continue_handler(message: Message):
-    await message.answer("⚠️ Илтимос, <b>▶️ Давом этиш</b> тугмасини босинг.")
-
-
-@dp.message(OrderForm.waiting_start_form, F.text == "📝 Буюртма маълумотларини киритиш")
-async def start_form_handler(message: Message, state: FSMContext):
     text = (
         "🆔 <b>Қайси ID бўйича буюртма қилгансиз?</b>\n\n"
         "Илтимос, <b>буюртма ID рақамини киритинг.</b>\n\n"
@@ -229,9 +219,9 @@ async def start_form_handler(message: Message, state: FSMContext):
     await state.set_state(OrderForm.waiting_order_id)
 
 
-@dp.message(OrderForm.waiting_start_form)
-async def wrong_start_form_handler(message: Message):
-    await message.answer("⚠️ Илтимос, <b>📝 Буюртма маълумотларини киритиш</b> тугмасини босинг.")
+@dp.message(OrderForm.waiting_continue)
+async def wrong_continue_handler(message: Message):
+    await message.answer("⚠️ Илтимос, <b>▶️ Давом этиш</b> тугмасини босинг.")
 
 
 @dp.message(OrderForm.waiting_order_id)
@@ -317,7 +307,8 @@ async def city_handler(message: Message, state: FSMContext):
         "📌 <b>Намуна:</b>\n"
         "Юнусобод тумани, 12-квартал, 45-уй, 12-хонадон\n\n"
         "ёки\n\n"
-        "Абай кўчаси 17-уй, 24-хонадон"
+        "Абай кўчаси 17-уй, 24-хонадон",
+        reply_markup=ReplyKeyboardRemove()
     )
     await state.set_state(OrderForm.waiting_address)
 
@@ -381,7 +372,7 @@ async def confirm_handler(message: Message, state: FSMContext):
                 reply_markup=admin_inline_keyboard(request_id)
             )
         except Exception as e:
-            print(f"Adminга юборишда хато: {e}")
+            print(f"Adminga yuborishda xato: {e}")
 
     await message.answer(
         "✅ <b>Раҳмат!</b>\n\n"
@@ -428,7 +419,7 @@ async def approve_order(callback: CallbackQuery):
             "📦 Буюртмангиз тез орада етказиб берилади."
         )
     except Exception as e:
-        print(f"Фойдаланувчига хабар юборишда хато: {e}")
+        print(f"Foydalanuvchiga xabar yuborishda xato: {e}")
 
     await callback.answer("Буюртма тасдиқланди.")
 
@@ -464,7 +455,7 @@ async def reject_order(callback: CallbackQuery):
             "📌 Илтимос, маълумотларни текшириб қайта юборинг."
         )
     except Exception as e:
-        print(f"Фойдаланувчига хабар юборишда хато: {e}")
+        print(f"Foydalanuvchiga xabar yuborishda xato: {e}")
 
     await callback.answer("Буюртма бекор қилинди.")
 
