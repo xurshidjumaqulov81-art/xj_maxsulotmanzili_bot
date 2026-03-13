@@ -200,7 +200,13 @@ def build_admin_text(data: dict, user: Message) -> str:
 async def start_handler(message: Message, state: FSMContext):
     await state.clear()
     await message.answer(
-        "▶️ <b>Давом этиш</b> тугмасини босинг.",
+            "📌 <b>Маълумотларни киритишдан олдин қуйидагиларга эътибор беринг:</b>\n\n"
+        "1️⃣ Буюртма ID <b>7 хонали</b> бўлиши керак\n"
+        "2️⃣ Исм-фамилия <b>тўлиқ ёзилиши керак</b>\n"
+        "3️⃣ Давлат ва шаҳар <b>тугмалар орқали танланади</b>\n"
+        "4️⃣ Кейин <b>аниқ манзил</b> киритилади\n"
+        "5️⃣ Барча маълумотлар <b>тасдиқлангандан кейин админга юборилади</b>\n\n"
+        "Тайёр бўлсангиз, қуйидаги тугмани босинг.",
         reply_markup=continue_keyboard()
     )
     await state.set_state(OrderForm.waiting_continue)
@@ -305,9 +311,7 @@ async def city_handler(message: Message, state: FSMContext):
     await message.answer(
         "📍 <b>Етказиб бериш учун аниқ манзилни киритинг.</b>\n\n"
         "📌 <b>Намуна:</b>\n"
-        "Юнусобод тумани, 12-квартал, 45-уй, 12-хонадон\n\n"
-        "ёки\n\n"
-        "Абай кўчаси 17-уй, 24-хонадон",
+        "Юнусобод тумани, 12-квартал, 45-уй, 12-хонадон\n\n",
         reply_markup=ReplyKeyboardRemove()
     )
     await state.set_state(OrderForm.waiting_address)
